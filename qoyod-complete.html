@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Qoyod API Tester | اختبار واجهة قيود البرمجية</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+:root {
+    --primary: #8b5cf6; --primary-dark: #7c3aed; --primary-light: #a78bfa;
+    --primary-glow: rgba(139, 92, 246, 0.3);
+    --secondary: #10b981; --accent: #f59e0b;
+    --danger: #ef4444; --warning: #f59e0b; --success: #22c55e; --info: #3b82f6;
+    --bg-primary: #0c0a1d; --bg-secondary: #13102a; --bg-tertiary: #1c1836;
+    --bg-card: #1a1630; --bg-hover: #252042;
+    --text-primary: #f8fafc; --text-secondary: #94a3b8; --text-muted: #64748b;
+    --border-color: #2e2654; --border-glow: rgba(139, 92, 246, 0.5);
+    --sidebar-width: 280px; --header-height: 64px;
+    --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.5);
+    --shadow-glow: 0 0 30px var(--primary-glow);
+    --transition-fast: 150ms ease; --transition-base: 250ms ease;
+    --radius-sm: 6px; --radius-md: 10px; --radius-lg: 16px; --radius-full: 9999px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; scroll-behavior: smooth; }
+body {
+    font-family: 'Cairo', sans-serif;
+    background: var(--bg-primary);
+    background-image: radial-gradient(ellipse at top, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+                      radial-gradient(ellipse at bottom right, rgba(16, 185, 129, 0.05) 0%, transparent 50%);
+    color: var(--text-primary);
+    line-height: 1.6;
+    min-height: 100vh;
+    direction: rtl;
+    overflow-x: hidden;
+}
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--bg-secondary); }
+::-webkit-scrollbar-thumb { background: var(--bg-tertiary); border-radius: var(--radius-full); }
+::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+
+/* Header */
+.header {
+    position: fixed; top: 0; right: 0; left: 0;
+    height: var(--header-height);
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+    border-bottom: 1px solid var(--border-color);
+    z-index: 100;
+    backdrop-filter: blur(20px);
+}
+.header-content {
+    display: flex; align-items: center; justify-content: space-between;
+    height: 100%; padding: 0 24px; max-width: 100%;
+}
+.logo { display: flex; align-items: center; gap: 14px; color: var(--primary-light); }
+.logo svg { filter: drop-shadow(0 0 10px var(--primary-glow)); }
+.logo h1 {
+    font-size: 1.3rem; font-weight: 700;
+    background: linear-gradient(135deg, var(--text-primary) 0%, var(--primary-light) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.header-nav { display: flex; gap: 8px; }
+.nav-link {
+    color: var(--text-secondary); text-decoration: none; font-weight: 500;
+    padding: 8px 16px; border-radius: var(--radius-md);
+    transition: all var(--transition-base); border: 1px solid transparent;
+}
+.nav-link:hover { color: var(--text-primary); background: var(--bg-tertiary); }
+.nav-link.active { color: var(--primary-light); background: var(--bg-tertiary); border-color: var(--primary); }
+.header-actions { display: flex; align-items: center; gap: 12px; }
+.btn-icon {
+    background: var(--bg-tertiary); border: 1px solid var(--border-color);
+    color: var(--text-primary); padding: 8px 14px; border-radius: var(--radius-md);
+    font-weight: 600; cursor: pointer; transition: all var(--transition-base); font-family: inherit;
+}
+.btn-icon:hover { background: var(--primary); border-color: var(--primary); transform: translateY(-2px); box-shadow: var(--shadow-glow); }
+
+/* Main Layout */
+.main-container { display: flex; margin-top: var(--header-height); min-height: calc(100vh - var(--header-height)); }
+
+/* Sidebar */
+.sidebar {
+    width: var(--sidebar-width); background: var(--bg-secondary);
+    border-left: 1px solid var(--border-color);
+    position: fixed; top: var(--header-height); right: 0; bottom: 0;
+    overflow-y: auto; padding: 20px; z-index: 50;
+}
+.api-key-section {
+    background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-tertiary) 100%);
+    padding: 16px; border-radius: var(--radius-lg); margin-bottom: 20px;
+    border: 1px solid var(--border-color);
+}
+.api-key-section label { display: block; font-weight: 600; margin-bottom: 8px; color: var(--text-secondary); font-size: 0.85rem; }
+.input-group { display: flex; gap: 8px; }
+.input-group input {
+    flex: 1; padding: 10px 14px; background: var(--bg-primary);
+    border: 2px solid var(--border-color); border-radius: var(--radius-md);
+    color: var(--text-primary); font-family: inherit; font-size: 0.9rem;
+    transition: all var(--transition-base);
+}
+.input-group input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow); }
+.input-group input::placeholder { color: var(--text-muted); }
+.input-group .btn-icon { padding: 10px; }
+.connection-status {
+    display: flex; align-items: center; gap: 8px; margin-top: 12px;
+    padding: 8px 12px; background: var(--bg-primary); border-radius: var(--radius-sm); font-size: 0.8rem;
+}
+.status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--danger); animation: pulse 2s infinite; }
+.connection-status.connected .status-dot { background: var(--success); }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+/* Navigation */
+.nav-menu { display: flex; flex-direction: column; gap: 12px; }
+.nav-section { display: flex; flex-direction: column; gap: 4px; }
+.nav-title {
+    font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.1em; color: var(--text-muted);
+    padding: 8px 12px; border-bottom: 1px solid var(--border-color); margin-bottom: 4px;
+}
+.nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; background: transparent; border: none;
+    border-radius: var(--radius-md); color: var(--text-secondary);
+    font-family: inherit; font-size: 0.85rem; cursor: pointer;
+    transition: all var(--transition-base); text-align: right; width: 100%;
+}
+.nav-item:hover { background: var(--bg-hover); color: var(--text-primary); transform: translateX(-4px); }
+.nav-item.active {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: var(--text-primary); box-shadow: var(--shadow-glow);
+}
+.nav-icon { font-size: 1.1rem; width: 24px; text-align: center; }
+
+/* Content Area */
+.content { flex: 1; margin-right: var(--sidebar-width); padding: 24px; min-height: calc(100vh - var(--header-height)); }
+.hidden { display: none !important; }
+
+/* Welcome Screen */
+.welcome-screen {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; min-height: 60vh; animation: fadeIn 0.5s ease;
+}
+@keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+.welcome-icon { font-size: 4rem; margin-bottom: 20px; animation: float 3s ease-in-out infinite; }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+.welcome-screen h2 {
+    font-size: 1.8rem; font-weight: 700; margin-bottom: 12px;
+    background: linear-gradient(135deg, var(--text-primary) 0%, var(--primary-light) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.welcome-screen p { color: var(--text-secondary); font-size: 1rem; margin-bottom: 28px; }
+.quick-start {
+    background: var(--bg-card); padding: 24px 28px; border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color); text-align: right; max-width: 480px;
+}
+.quick-start h3 { font-size: 1.1rem; color: var(--primary-light); margin-bottom: 14px; }
+.quick-start ol { padding-right: 20px; color: var(--text-secondary); }
+.quick-start li { margin-bottom: 8px; line-height: 1.7; }
+
+/* Resource Panel */
+.resource-panel { animation: slideIn 0.3s ease; }
+@keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+.panel-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+.panel-header h2 { font-size: 1.6rem; font-weight: 700; color: var(--text-primary); }
+
+/* Operations Tabs */
+.operations-tabs {
+    display: flex; gap: 8px; padding: 14px; background: var(--bg-card);
+    border-radius: var(--radius-lg); margin-bottom: 20px; flex-wrap: wrap;
+    border: 1px solid var(--border-color);
+}
+.tab-btn {
+    display: flex; align-items: center; gap: 8px; padding: 10px 16px;
+    background: var(--bg-tertiary); border: 2px solid var(--border-color);
+    border-radius: var(--radius-md); color: var(--text-secondary);
+    font-family: inherit; font-size: 0.85rem; font-weight: 500;
+    cursor: pointer; transition: all var(--transition-base);
+}
+.tab-btn:hover { background: var(--bg-hover); color: var(--text-primary); transform: translateY(-2px); }
+.tab-btn.active { background: var(--primary); border-color: var(--primary); color: var(--text-primary); box-shadow: var(--shadow-glow); }
+.method-badge {
+    padding: 2px 8px; border-radius: var(--radius-sm);
+    font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
+}
+.method-badge.get { background: rgba(34, 197, 94, 0.2); color: var(--success); }
+.method-badge.post { background: rgba(59, 130, 246, 0.2); color: var(--info); }
+.method-badge.put, .method-badge.patch { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
+.method-badge.delete { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
+
+/* Request Section */
+.request-section {
+    background: var(--bg-card); border-radius: var(--radius-lg);
+    padding: 20px; margin-bottom: 20px; border: 1px solid var(--border-color);
+}
+.request-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; flex-wrap: wrap; gap: 12px; }
+.request-header h3 { font-size: 1.1rem; color: var(--text-primary); }
+.endpoint-display {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--bg-primary); padding: 10px 14px; border-radius: var(--radius-md);
+    font-family: 'JetBrains Mono', monospace; font-size: 0.85rem;
+    border: 1px solid var(--border-color); direction: ltr;
+}
+.endpoint-display .method { padding: 4px 10px; border-radius: var(--radius-sm); font-weight: 700; font-size: 0.75rem; }
+.endpoint-display .url { color: var(--text-secondary); }
+
+/* Parameters Section */
+.params-section { margin-bottom: 18px; }
+.params-section h4, .body-section h4 { font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 10px; }
+#params-container { display: flex; flex-direction: column; gap: 10px; }
+.param-row { display: grid; grid-template-columns: 140px 1fr auto; gap: 10px; align-items: center; }
+.param-row input {
+    padding: 10px 12px; background: var(--bg-primary);
+    border: 2px solid var(--border-color); border-radius: var(--radius-md);
+    color: var(--text-primary); font-family: inherit; font-size: 0.85rem;
+    transition: all var(--transition-base);
+}
+.param-row input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow); }
+.param-row .remove-param {
+    background: transparent; border: none; color: var(--danger);
+    cursor: pointer; padding: 8px; font-size: 1.1rem; transition: all var(--transition-base);
+}
+.param-row .remove-param:hover { transform: scale(1.2); }
+
+/* Body Section */
+.body-section { margin-bottom: 18px; }
+.body-section textarea {
+    width: 100%; min-height: 180px; padding: 14px;
+    background: var(--bg-primary); border: 2px solid var(--border-color);
+    border-radius: var(--radius-md); color: var(--text-primary);
+    font-family: 'JetBrains Mono', monospace; font-size: 0.85rem;
+    resize: vertical; direction: ltr; transition: all var(--transition-base);
+}
+.body-section textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow); }
+
+/* Buttons */
+.btn-primary {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    width: 100%; padding: 14px 20px;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    border: none; border-radius: var(--radius-md);
+    color: var(--text-primary); font-family: inherit; font-size: 1rem;
+    font-weight: 600; cursor: pointer; transition: all var(--transition-base);
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: var(--shadow-glow); }
+.btn-primary:active { transform: translateY(0); }
+.btn-secondary {
+    padding: 8px 14px; background: var(--bg-tertiary);
+    border: 2px solid var(--border-color); border-radius: var(--radius-md);
+    color: var(--text-secondary); font-family: inherit; font-size: 0.8rem;
+    cursor: pointer; transition: all var(--transition-base); margin-top: 8px;
+}
+.btn-secondary:hover { background: var(--primary); border-color: var(--primary); color: var(--text-primary); }
+
+/* Response Section */
+.response-section {
+    background: var(--bg-card); border-radius: var(--radius-lg);
+    padding: 20px; border: 1px solid var(--border-color);
+}
+.response-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.response-header h3 { font-size: 1.1rem; color: var(--text-primary); }
+.response-meta { display: flex; gap: 12px; }
+.status-badge {
+    padding: 4px 12px; border-radius: var(--radius-sm);
+    font-size: 0.8rem; font-weight: 600;
+    background: var(--bg-tertiary); color: var(--text-muted);
+}
+.status-badge.success { background: rgba(34, 197, 94, 0.2); color: var(--success); }
+.status-badge.error { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
+.response-tabs { display: flex; gap: 8px; margin-bottom: 14px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
+.resp-tab-btn {
+    padding: 8px 14px; background: transparent; border: none;
+    color: var(--text-muted); font-family: inherit; font-size: 0.85rem;
+    cursor: pointer; border-radius: var(--radius-md); transition: all var(--transition-base);
+}
+.resp-tab-btn:hover { color: var(--text-primary); background: var(--bg-tertiary); }
+.resp-tab-btn.active { color: var(--primary-light); background: var(--bg-tertiary); }
+.response-body {
+    background: var(--bg-primary); border-radius: var(--radius-md);
+    padding: 14px; min-height: 180px; max-height: 400px; overflow: auto;
+    font-family: 'JetBrains Mono', monospace; font-size: 0.85rem;
+    direction: ltr; text-align: left;
+}
+.response-body pre { margin: 0; white-space: pre-wrap; word-break: break-word; }
+.empty-response {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; height: 140px; color: var(--text-muted);
+}
+.empty-response span { font-size: 2.5rem; margin-bottom: 10px; }
+
+/* JSON Syntax Highlighting */
+.json-key { color: #c4b5fd; }
+.json-string { color: #6ee7b7; }
+.json-number { color: #fcd34d; }
+.json-boolean { color: #93c5fd; }
+.json-null { color: #fca5a5; }
+
+/* Toast Notifications */
+.toast-container { position: fixed; bottom: 24px; left: 24px; display: flex; flex-direction: column; gap: 10px; z-index: 1000; }
+.toast {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 18px; background: var(--bg-card);
+    border: 1px solid var(--border-color); border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg); animation: slideUp 0.3s ease; min-width: 260px;
+}
+@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+.toast.success { border-color: var(--success); }
+.toast.error { border-color: var(--danger); }
+.toast.warning { border-color: var(--warning); }
+.toast-icon { font-size: 1.3rem; }
+.toast-message { flex: 1; font-size: 0.85rem; }
+
+/* Loading Overlay */
+.loading-overlay {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(12, 10, 29, 0.9);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    z-index: 2000;
+}
+.spinner {
+    width: 48px; height: 48px;
+    border: 4px solid var(--border-color); border-top-color: var(--primary);
+    border-radius: 50%; animation: spin 1s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-overlay p { margin-top: 14px; color: var(--text-secondary); font-size: 1rem; }
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .sidebar { width: 220px; }
+    .content { margin-right: 220px; }
+}
+@media (max-width: 768px) {
+    .sidebar { transform: translateX(100%); transition: transform var(--transition-base); }
+    .sidebar.open { transform: translateX(0); }
+    .content { margin-right: 0; padding: 16px; }
+    .operations-tabs { flex-direction: column; }
+    .tab-btn { width: 100%; justify-content: center; }
+    .param-row { grid-template-columns: 1fr; }
+    .header-nav { display: none; }
+}
+
+/* LTR Support */
+[dir="ltr"] .sidebar { right: auto; left: 0; border-right: 1px solid var(--border-color); border-left: none; }
+[dir="ltr"] .content { margin-right: 0; margin-left: var(--sidebar-width); }
+[dir="ltr"] .nav-item:hover { transform: translateX(4px); }
+[dir="ltr"] .quick-start { text-align: left; }
+[dir="ltr"] .quick-start ol { padding-right: 0; padding-left: 20px; }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <svg width="36" height="36" viewBox="0 0 40 40" fill="none">
+                    <circle cx="20" cy="20" r="18" stroke="currentColor" stroke-width="2"/>
+                    <path d="M12 20L18 26L28 14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <h1 id="app-title">اختبار واجهة قيود</h1>
+            </div>
+            <nav class="header-nav">
+                <a href="#" class="nav-link active" data-view="api-tester" id="nav-api">اختبار API</a>
+                <a href="#" class="nav-link" data-view="workflows" id="nav-workflows">سير العمل</a>
+            </nav>
+            <div class="header-actions">
+                <button id="lang-switch" class="btn-icon" title="Switch to English">EN</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="main-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="api-key-section">
+                <label for="api-key" id="lbl-api-key">مفتاح API</label>
+                <div class="input-group">
+                    <input type="password" id="api-key" placeholder="أدخل مفتاح API">
+                    <button id="toggle-key" class="btn-icon" title="إظهار/إخفاء">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="connection-status" id="connection-status">
+                    <span class="status-dot"></span>
+                    <span class="status-text" id="status-text">غير متصل</span>
+                </div>
+            </div>
+
+            <nav class="nav-menu" id="nav-menu">
+                <div class="nav-section">
+                    <h3 class="nav-title" data-section="accounts">الحسابات</h3>
+                    <button class="nav-item" data-resource="accounts"><span class="nav-icon">📊</span><span>الحسابات</span></button>
+                </div>
+                <div class="nav-section">
+                    <h3 class="nav-title" data-section="products">المنتجات والمخزون</h3>
+                    <button class="nav-item" data-resource="products"><span class="nav-icon">📦</span><span>المنتجات</span></button>
+                    <button class="nav-item" data-resource="inventories"><span class="nav-icon">🏭</span><span>المخازن</span></button>
+                    <button class="nav-item" data-resource="product_categories"><span class="nav-icon">📁</span><span>تصنيفات المنتجات</span></button>
+                    <button class="nav-item" data-resource="product_units"><span class="nav-icon">📏</span><span>وحدات القياس</span></button>
+                </div>
+                <div class="nav-section">
+                    <h3 class="nav-title" data-section="purchases">المشتريات</h3>
+                    <button class="nav-item" data-resource="vendors"><span class="nav-icon">🏢</span><span>الموردين</span></button>
+                    <button class="nav-item" data-resource="purchase_orders"><span class="nav-icon">📋</span><span>أوامر الشراء</span></button>
+                    <button class="nav-item" data-resource="bills"><span class="nav-icon">🧾</span><span>فواتير المشتريات</span></button>
+                    <button class="nav-item" data-resource="bill_payments"><span class="nav-icon">💳</span><span>سداد الفواتير</span></button>
+                    <button class="nav-item" data-resource="simple_bills"><span class="nav-icon">📄</span><span>الفواتير المبسطة</span></button>
+                    <button class="nav-item" data-resource="simple_bill_payments"><span class="nav-icon">💰</span><span>سداد الفواتير المبسطة</span></button>
+                    <button class="nav-item" data-resource="debit_notes"><span class="nav-icon">📝</span><span>إشعارات المدين</span></button>
+                </div>
+                <div class="nav-section">
+                    <h3 class="nav-title" data-section="sales">المبيعات</h3>
+                    <button class="nav-item" data-resource="customers"><span class="nav-icon">👥</span><span>العملاء</span></button>
+                    <button class="nav-item" data-resource="quotes"><span class="nav-icon">💬</span><span>عروض الأسعار</span></button>
+                    <button class="nav-item" data-resource="invoices"><span class="nav-icon">🧾</span><span>فواتير المبيعات</span></button>
+                    <button class="nav-item" data-resource="invoice_payments"><span class="nav-icon">💵</span><span>تحصيل الفواتير</span></button>
+                    <button class="nav-item" data-resource="credit_notes"><span class="nav-icon">📋</span><span>إشعارات الدائن</span></button>
+                </div>
+                <div class="nav-section">
+                    <h3 class="nav-title" data-section="accounting">المحاسبة</h3>
+                    <button class="nav-item" data-resource="receipts"><span class="nav-icon">🧾</span><span>الإيصالات</span></button>
+                    <button class="nav-item" data-resource="journal_entries"><span class="nav-icon">📒</span><span>القيود اليومية</span></button>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Content Area -->
+        <section class="content">
+            <!-- Welcome Screen -->
+            <div id="welcome-screen" class="welcome-screen">
+                <div class="welcome-icon">🚀</div>
+                <h2 id="welcome-title">مرحباً بك في أداة اختبار واجهة قيود</h2>
+                <p id="welcome-desc">اختر مورداً من القائمة الجانبية للبدء في اختبار نقاط النهاية</p>
+                <div class="quick-start">
+                    <h3 id="quick-start-title">البدء السريع</h3>
+                    <ol id="quick-start-steps">
+                        <li>أدخل مفتاح API الخاص بك في الحقل المخصص</li>
+                        <li>اختر مورداً للاختبار من القائمة الجانبية</li>
+                        <li>اختر العملية المطلوبة (عرض، إضافة، تعديل، حذف)</li>
+                        <li>راجع النتائج في منطقة الاستجابة</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Resource Panel -->
+            <div id="resource-panel" class="resource-panel hidden">
+                <div class="panel-header">
+                    <h2 id="resource-title">المورد</h2>
+                </div>
+
+                <!-- Operations Tabs -->
+                <div class="operations-tabs">
+                    <button class="tab-btn active" data-operation="list">
+                        <span class="method-badge get">GET</span>
+                        <span id="op-list">عرض الكل</span>
+                    </button>
+                    <button class="tab-btn" data-operation="show">
+                        <span class="method-badge get">GET</span>
+                        <span id="op-show">عرض واحد</span>
+                    </button>
+                    <button class="tab-btn" data-operation="create">
+                        <span class="method-badge post">POST</span>
+                        <span id="op-create">إضافة</span>
+                    </button>
+                    <button class="tab-btn" data-operation="update">
+                        <span class="method-badge put">PUT</span>
+                        <span id="op-update">تعديل</span>
+                    </button>
+                    <button class="tab-btn" data-operation="delete">
+                        <span class="method-badge delete">DELETE</span>
+                        <span id="op-delete">حذف</span>
+                    </button>
+                </div>
+
+                <!-- Request Section -->
+                <div class="request-section">
+                    <div class="request-header">
+                        <h3 id="request-title">الطلب</h3>
+                        <div class="endpoint-display">
+                            <span class="method" id="request-method">GET</span>
+                            <span class="url" id="request-url">https://api.qoyod.com/2.0/</span>
+                        </div>
+                    </div>
+
+                    <!-- Parameters -->
+                    <div class="params-section" id="params-section">
+                        <h4 id="params-title">المعاملات</h4>
+                        <div id="params-container"></div>
+                    </div>
+
+                    <!-- Request Body -->
+                    <div class="body-section hidden" id="body-section">
+                        <h4 id="body-title">جسم الطلب (JSON)</h4>
+                        <textarea id="request-body" placeholder='{"key": "value"}'></textarea>
+                        <button id="format-json" class="btn-secondary">تنسيق JSON</button>
+                    </div>
+
+                    <!-- Send Button -->
+                    <button id="send-request" class="btn-primary">
+                        <span id="send-text">إرسال الطلب</span>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 2L11 13"/><path d="M22 2L15 22L11 13L2 9L22 2Z"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Response Section -->
+                <div class="response-section">
+                    <div class="response-header">
+                        <h3 id="response-title">الاستجابة</h3>
+                        <div class="response-meta">
+                            <span id="response-status" class="status-badge">-</span>
+                            <span id="response-time">-</span>
+                        </div>
+                    </div>
+                    <div class="response-tabs">
+                        <button class="resp-tab-btn active" data-resp="body" id="resp-body-tab">الجسم</button>
+                        <button class="resp-tab-btn" data-resp="headers" id="resp-headers-tab">الترويسات</button>
+                    </div>
+                    <div class="response-body" id="response-content">
+                        <div class="empty-response">
+                            <span>🔍</span>
+                            <p id="no-request-text">لم يتم إرسال طلب بعد</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay hidden">
+        <div class="spinner"></div>
+        <p id="loading-text">جاري التحميل...</p>
+    </div>
+
+    <script>
+/**
+ * Qoyod API Tester - Complete Single File Application
+ * Based on https://apidoc.qoyod.com/
+ */
+
+// ============================================
+// Configuration
+// ============================================
+// Detect if running from file:// or via server
+const IS_FILE_PROTOCOL = window.location.protocol === 'file:';
+const IS_LOCALHOST = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
+// Use proxy when running via server.js, direct API otherwise
+// When opening file directly, will show CORS warning
+let API_BASE_URL = IS_LOCALHOST ? '/api' : 'https://api.qoyod.com/2.0';
+
+// CORS Proxy options (free public proxies - use for testing only)
+const CORS_PROXIES = [
+    '', // Direct (works with server.js or CORS extension)
+    'https://corsproxy.io/?', // Free CORS proxy
+    'https://api.allorigins.win/raw?url=', // Another option
+];
+let currentProxyIndex = 0;
+
+const RESOURCES = {
+    accounts: { nameAr: 'الحسابات', nameEn: 'Accounts', endpoint: '/accounts', operations: ['list', 'show', 'create'],
+        fields: { create: ['name', 'account_type', 'code', 'description'] } },
+    products: { nameAr: 'المنتجات', nameEn: 'Products', endpoint: '/products', operations: ['list', 'show', 'create', 'update'],
+        fields: { create: ['name', 'sku', 'selling_price', 'buying_price', 'description', 'track_quantity', 'category_id', 'unit_id'],
+                  update: ['name', 'sku', 'selling_price', 'buying_price', 'description'] } },
+    inventories: { nameAr: 'المخازن', nameEn: 'Inventories', endpoint: '/inventories', operations: ['list', 'show', 'create', 'update'],
+        fields: { create: ['name', 'code', 'description', 'address'], update: ['name', 'code', 'description', 'address'] } },
+    product_categories: { nameAr: 'تصنيفات المنتجات', nameEn: 'Product Categories', endpoint: '/product_categories', operations: ['list', 'show', 'create', 'update'],
+        fields: { create: ['name', 'parent_id'], update: ['name', 'parent_id'] } },
+    product_units: { nameAr: 'وحدات القياس', nameEn: 'Product Units', endpoint: '/product_units', operations: ['list', 'show', 'create'],
+        fields: { create: ['name', 'abbreviation'] } },
+    vendors: { nameAr: 'الموردين', nameEn: 'Vendors', endpoint: '/vendors', operations: ['list', 'show', 'create', 'update'],
+        fields: { create: ['name', 'email', 'contact_name', 'phone', 'tax_number', 'address', 'city', 'country'],
+                  update: ['name', 'email', 'contact_name', 'phone', 'tax_number', 'address'] } },
+    purchase_orders: { nameAr: 'أوامر الشراء', nameEn: 'Purchase Orders', endpoint: '/purchase_orders', operations: ['list', 'show', 'create'],
+        fields: { create: ['vendor_id', 'date', 'reference', 'description', 'line_items'] } },
+    bills: { nameAr: 'فواتير المشتريات', nameEn: 'Bills', endpoint: '/bills', operations: ['list', 'show', 'create', 'delete'],
+        fields: { create: ['vendor_id', 'date', 'due_date', 'reference', 'description', 'line_items'] } },
+    bill_payments: { nameAr: 'سداد الفواتير', nameEn: 'Bill Payments', endpoint: '/bill_payments', operations: ['list', 'show', 'create'],
+        fields: { create: ['bill_id', 'account_id', 'amount', 'date', 'reference'] } },
+    simple_bills: { nameAr: 'الفواتير المبسطة', nameEn: 'Simple Bills', endpoint: '/simple_bills', operations: ['list', 'show', 'create', 'update', 'delete'],
+        fields: { create: ['account_id', 'date', 'amount', 'description', 'reference'], update: ['account_id', 'date', 'amount', 'description', 'reference'] } },
+    simple_bill_payments: { nameAr: 'سداد الفواتير المبسطة', nameEn: 'Simple Bill Payments', endpoint: '/simple_bill_payments', operations: ['list', 'show', 'create'],
+        fields: { create: ['simple_bill_id', 'account_id', 'amount', 'date', 'reference'] } },
+    debit_notes: { nameAr: 'إشعارات المدين', nameEn: 'Debit Notes', endpoint: '/debit_notes', operations: ['list', 'show', 'create', 'delete'],
+        fields: { create: ['vendor_id', 'bill_id', 'date', 'description', 'line_items'] } },
+    customers: { nameAr: 'العملاء', nameEn: 'Customers', endpoint: '/customers', operations: ['list', 'show', 'create', 'update'],
+        fields: { create: ['name', 'email', 'contact_name', 'phone', 'tax_number', 'address', 'city', 'country'],
+                  update: ['name', 'email', 'contact_name', 'phone', 'tax_number', 'address'] } },
+    quotes: { nameAr: 'عروض الأسعار', nameEn: 'Quotes', endpoint: '/quotes', operations: ['list', 'show', 'create', 'update'],
+        fields: { create: ['customer_id', 'date', 'expiry_date', 'reference', 'description', 'line_items'],
+                  update: ['customer_id', 'date', 'expiry_date', 'reference', 'description'] } },
+    invoices: { nameAr: 'فواتير المبيعات', nameEn: 'Invoices', endpoint: '/invoices', operations: ['list', 'show', 'create', 'update', 'delete'],
+        fields: { create: ['customer_id', 'date', 'due_date', 'reference', 'description', 'line_items'],
+                  update: ['customer_id', 'date', 'due_date', 'reference', 'description'] } },
+    invoice_payments: { nameAr: 'تحصيل الفواتير', nameEn: 'Invoice Payments', endpoint: '/invoice_payments', operations: ['list', 'show', 'create'],
+        fields: { create: ['invoice_id', 'account_id', 'amount', 'date', 'reference'] } },
+    credit_notes: { nameAr: 'إشعارات الدائن', nameEn: 'Credit Notes', endpoint: '/credit_notes', operations: ['list', 'show', 'create', 'delete'],
+        fields: { create: ['customer_id', 'invoice_id', 'date', 'description', 'line_items'] } },
+    receipts: { nameAr: 'الإيصالات', nameEn: 'Receipts', endpoint: '/receipts', operations: ['list', 'show', 'create'],
+        fields: { create: ['customer_id', 'account_id', 'amount', 'date', 'reference', 'description'] } },
+    journal_entries: { nameAr: 'القيود اليومية', nameEn: 'Journal Entries', endpoint: '/journal_entries', operations: ['list', 'show', 'create', 'delete'],
+        fields: { create: ['date', 'reference', 'description', 'line_items'] } }
+};
+
+const FIELD_LABELS = {
+    ar: { name: 'الاسم', email: 'البريد الإلكتروني', phone: 'الهاتف', address: 'العنوان', city: 'المدينة', country: 'الدولة',
+          description: 'الوصف', code: 'الرمز', date: 'التاريخ', due_date: 'تاريخ الاستحقاق', expiry_date: 'تاريخ الانتهاء',
+          reference: 'المرجع', amount: 'المبلغ', sku: 'رمز المنتج', selling_price: 'سعر البيع', buying_price: 'سعر الشراء',
+          track_quantity: 'تتبع الكمية', category_id: 'معرف التصنيف', unit_id: 'معرف الوحدة', parent_id: 'المعرف الأب',
+          abbreviation: 'الاختصار', tax_number: 'الرقم الضريبي', contact_name: 'اسم جهة الاتصال', vendor_id: 'معرف المورد',
+          customer_id: 'معرف العميل', account_id: 'معرف الحساب', bill_id: 'معرف الفاتورة', invoice_id: 'معرف فاتورة المبيعات',
+          simple_bill_id: 'معرف الفاتورة المبسطة', account_type: 'نوع الحساب', line_items: 'البنود (JSON)', id: 'المعرف' },
+    en: { name: 'Name', email: 'Email', phone: 'Phone', address: 'Address', city: 'City', country: 'Country',
+          description: 'Description', code: 'Code', date: 'Date', due_date: 'Due Date', expiry_date: 'Expiry Date',
+          reference: 'Reference', amount: 'Amount', sku: 'SKU', selling_price: 'Selling Price', buying_price: 'Buying Price',
+          track_quantity: 'Track Quantity', category_id: 'Category ID', unit_id: 'Unit ID', parent_id: 'Parent ID',
+          abbreviation: 'Abbreviation', tax_number: 'Tax Number', contact_name: 'Contact Name', vendor_id: 'Vendor ID',
+          customer_id: 'Customer ID', account_id: 'Account ID', bill_id: 'Bill ID', invoice_id: 'Invoice ID',
+          simple_bill_id: 'Simple Bill ID', account_type: 'Account Type', line_items: 'Line Items (JSON)', id: 'ID' }
+};
+
+const UI_TEXT = {
+    ar: { apiTester: 'اختبار واجهة قيود', apiKey: 'مفتاح API', enterApiKey: 'أدخل مفتاح API', connected: 'متصل', notConnected: 'غير متصل',
+          listAll: 'عرض الكل', showOne: 'عرض واحد', create: 'إضافة', update: 'تعديل', delete: 'حذف',
+          request: 'الطلب', response: 'الاستجابة', params: 'المعاملات', requestBody: 'جسم الطلب (JSON)',
+          formatJson: 'تنسيق JSON', sendRequest: 'إرسال الطلب', body: 'الجسم', headers: 'الترويسات',
+          noRequestYet: 'لم يتم إرسال طلب بعد', loading: 'جاري التحميل...', success: 'نجاح', error: 'خطأ',
+          warning: 'تحذير', resourceId: 'معرف المورد', page: 'الصفحة', perPage: 'لكل صفحة',
+          welcome: 'مرحباً بك في أداة اختبار واجهة قيود', selectResource: 'اختر مورداً من القائمة الجانبية للبدء',
+          quickStart: 'البدء السريع', step1: 'أدخل مفتاح API الخاص بك', step2: 'اختر مورداً للاختبار',
+          step3: 'اختر العملية المطلوبة', step4: 'راجع النتائج', operationNotSupported: 'هذه العملية غير مدعومة',
+          apiKeyRequired: 'الرجاء إدخال مفتاح API', idRequired: 'الرجاء إدخال معرف المورد',
+          apiTesterNav: 'اختبار API', workflowsNav: 'سير العمل',
+          accounts: 'الحسابات', products: 'المنتجات والمخزون', purchases: 'المشتريات', sales: 'المبيعات', accounting: 'المحاسبة' },
+    en: { apiTester: 'Qoyod API Tester', apiKey: 'API Key', enterApiKey: 'Enter your API key', connected: 'Connected', notConnected: 'Not connected',
+          listAll: 'List All', showOne: 'Show One', create: 'Create', update: 'Update', delete: 'Delete',
+          request: 'Request', response: 'Response', params: 'Parameters', requestBody: 'Request Body (JSON)',
+          formatJson: 'Format JSON', sendRequest: 'Send Request', body: 'Body', headers: 'Headers',
+          noRequestYet: 'No request sent yet', loading: 'Loading...', success: 'Success', error: 'Error',
+          warning: 'Warning', resourceId: 'Resource ID', page: 'Page', perPage: 'Per Page',
+          welcome: 'Welcome to Qoyod API Tester', selectResource: 'Select a resource from the sidebar to start',
+          quickStart: 'Quick Start', step1: 'Enter your API key', step2: 'Select a resource to test',
+          step3: 'Choose the desired operation', step4: 'Review the results', operationNotSupported: 'Operation not supported',
+          apiKeyRequired: 'Please enter an API key', idRequired: 'Please enter a resource ID',
+          apiTesterNav: 'API Tester', workflowsNav: 'Workflows',
+          accounts: 'Accounts', products: 'Products & Inventory', purchases: 'Purchases', sales: 'Sales', accounting: 'Accounting' }
+};
+
+// ============================================
+// State
+// ============================================
+let state = { 
+    currentLang: 'ar', 
+    currentResource: null, 
+    currentOperation: 'list', 
+    apiKey: '', 
+    responseHeaders: null, 
+    lastResponseData: null,
+    cachedData: {
+        accounts: [],
+        categories: [],
+        product_categories: [],
+        units: [],
+        product_units: [],
+        product_unit_types: [],
+        inventories: [],
+        vendors: [],
+        customers: [],
+        products: []
+    }
+};
+
+// ============================================
+// DOM Elements
+// ============================================
+const $ = id => document.getElementById(id);
+const $$ = sel => document.querySelectorAll(sel);
+
+// ============================================
+// Utility Functions
+// ============================================
+const t = key => UI_TEXT[state.currentLang][key] || key;
+const getFieldLabel = field => FIELD_LABELS[state.currentLang][field] || field;
+
+function showToast(message, type = 'info') {
+    const icons = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.innerHTML = `<span class="toast-icon">${icons[type]}</span><span class="toast-message">${message}</span>`;
+    $('toast-container').appendChild(toast);
+    setTimeout(() => { toast.style.animation = 'slideUp 0.3s ease reverse'; setTimeout(() => toast.remove(), 300); }, 4000);
+}
+
+const showLoading = () => $('loading-overlay').classList.remove('hidden');
+const hideLoading = () => $('loading-overlay').classList.add('hidden');
+const formatJSON = obj => JSON.stringify(obj, null, 2);
+
+function syntaxHighlight(json) {
+    if (typeof json !== 'string') json = JSON.stringify(json, null, 2);
+    json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, match => {
+        let cls = 'json-number';
+        if (/^"/.test(match)) cls = /:$/.test(match) ? 'json-key' : 'json-string';
+        else if (/true|false/.test(match)) cls = 'json-boolean';
+        else if (/null/.test(match)) cls = 'json-null';
+        return `<span class="${cls}">${match}</span>`;
+    });
+}
+
+// ============================================
+// Language Switching
+// ============================================
+function toggleLanguage() {
+    state.currentLang = state.currentLang === 'ar' ? 'en' : 'ar';
+    document.documentElement.lang = state.currentLang;
+    document.documentElement.dir = state.currentLang === 'ar' ? 'rtl' : 'ltr';
+    $('lang-switch').textContent = state.currentLang === 'ar' ? 'EN' : 'عربي';
+    updateUILabels();
+    if (state.currentResource) updateResourcePanel();
+}
+
+function updateUILabels() {
+    $('app-title').textContent = t('apiTester');
+    $('lbl-api-key').textContent = t('apiKey');
+    $('api-key').placeholder = t('enterApiKey');
+    $('status-text').textContent = state.apiKey ? t('connected') : t('notConnected');
+    $('nav-api').textContent = t('apiTesterNav');
+    $('nav-workflows').textContent = t('workflowsNav');
+    $('welcome-title').textContent = t('welcome');
+    $('welcome-desc').textContent = t('selectResource');
+    $('quick-start-title').textContent = t('quickStart');
+    $('quick-start-steps').innerHTML = `<li>${t('step1')}</li><li>${t('step2')}</li><li>${t('step3')}</li><li>${t('step4')}</li>`;
+    $('op-list').textContent = t('listAll');
+    $('op-show').textContent = t('showOne');
+    $('op-create').textContent = t('create');
+    $('op-update').textContent = t('update');
+    $('op-delete').textContent = t('delete');
+    $('request-title').textContent = t('request');
+    $('params-title').textContent = t('params');
+    $('body-title').textContent = t('requestBody');
+    $('format-json').textContent = t('formatJson');
+    $('send-text').textContent = t('sendRequest');
+    $('response-title').textContent = t('response');
+    $('resp-body-tab').textContent = t('body');
+    $('resp-headers-tab').textContent = t('headers');
+    $('no-request-text').textContent = t('noRequestYet');
+    $('loading-text').textContent = t('loading');
+
+    // Update section titles
+    const sectionMap = { accounts: t('accounts'), products: t('products'), purchases: t('purchases'), sales: t('sales'), accounting: t('accounting') };
+    $$('.nav-title').forEach(el => { if (sectionMap[el.dataset.section]) el.textContent = sectionMap[el.dataset.section]; });
+
+    // Update nav items
+    $$('.nav-item').forEach(item => {
+        const res = RESOURCES[item.dataset.resource];
+        if (res) item.querySelector('span:last-child').textContent = state.currentLang === 'ar' ? res.nameAr : res.nameEn;
+    });
+}
+
+// ============================================
+// API Key Management
+// ============================================
+function toggleApiKeyVisibility() {
+    const input = $('api-key');
+    input.type = input.type === 'password' ? 'text' : 'password';
+}
+
+function updateConnectionStatus() {
+    state.apiKey = $('api-key').value.trim();
+    const status = $('connection-status');
+    $('status-text').textContent = state.apiKey ? t('connected') : t('notConnected');
+    status.classList.toggle('connected', !!state.apiKey);
+}
+
+// ============================================
+// Resource Management
+// ============================================
+function selectResource(resourceKey) {
+    state.currentResource = resourceKey;
+    state.currentOperation = 'list';
+    $$('.nav-item').forEach(item => item.classList.toggle('active', item.dataset.resource === resourceKey));
+    $('welcome-screen').classList.add('hidden');
+    $('resource-panel').classList.remove('hidden');
+    updateResourcePanel();
+}
+
+function updateResourcePanel() {
+    const resource = RESOURCES[state.currentResource];
+    if (!resource) return;
+    $('resource-title').textContent = state.currentLang === 'ar' ? resource.nameAr : resource.nameEn;
+    $$('.tab-btn').forEach(tab => {
+        const op = tab.dataset.operation;
+        tab.style.display = resource.operations.includes(op) ? 'flex' : 'none';
+        tab.classList.toggle('active', op === state.currentOperation);
+    });
+    updateRequestSection();
+}
+
+function selectOperation(operation) {
+    const resource = RESOURCES[state.currentResource];
+    if (!resource.operations.includes(operation)) { showToast(t('operationNotSupported'), 'warning'); return; }
+    state.currentOperation = operation;
+    $$('.tab-btn').forEach(tab => tab.classList.toggle('active', tab.dataset.operation === operation));
+    updateRequestSection();
+}
+
+// ============================================
+// Request Section
+// ============================================
+function updateRequestSection() {
+    const resource = RESOURCES[state.currentResource];
+    const operation = state.currentOperation;
+    const methods = { list: 'GET', show: 'GET', create: 'POST', update: 'PUT', delete: 'DELETE' };
+    const method = methods[operation];
+    const methodColors = { GET: 'rgba(34, 197, 94, 0.3)', POST: 'rgba(59, 130, 246, 0.3)', PUT: 'rgba(245, 158, 11, 0.3)', DELETE: 'rgba(239, 68, 68, 0.3)' };
+
+    $('request-method').textContent = method;
+    $('request-method').className = 'method ' + method.toLowerCase();
+    $('request-method').style.background = methodColors[method];
+
+    // Always show the full API URL for clarity
+    let displayUrl = `https://api.qoyod.com/2.0${resource.endpoint}`;
+    if (['show', 'update', 'delete'].includes(operation)) displayUrl += '/{id}';
+    $('request-url').textContent = displayUrl;
+
+    updateParamsSection(operation);
+    updateBodySection(operation, resource);
+}
+
+function updateParamsSection(operation) {
+    const container = $('params-container');
+    container.innerHTML = '';
+    if (operation === 'list') { addParamRow('page', '1'); addParamRow('per_page', '25'); }
+    else if (['show', 'update', 'delete'].includes(operation)) addParamRow('id', '', true);
+}
+
+function addParamRow(key, value = '', required = false) {
+    const row = document.createElement('div');
+    row.className = 'param-row';
+    row.innerHTML = `
+        <input type="text" placeholder="${getFieldLabel(key)}" value="${key}" class="param-key" ${required ? 'readonly' : ''}>
+        <input type="text" placeholder="${t('resourceId')}" value="${value}" class="param-value">
+        ${!required ? '<button class="remove-param" title="Remove">×</button>' : '<span></span>'}
+    `;
+    if (!required) row.querySelector('.remove-param').addEventListener('click', () => row.remove());
+    $('params-container').appendChild(row);
+}
+
+// Map field names to their entity endpoints
+function getEntityEndpoint(fieldName) {
+    const fieldMap = {
+        'category_id': { endpoint: '/product_categories', key: 'product_categories', nameField: 'name' },
+        'product_category_id': { endpoint: '/product_categories', key: 'product_categories', nameField: 'name' },
+        'unit_id': { endpoint: '/product_units', key: 'product_units', nameField: 'name' },
+        'product_unit_type_id': { endpoint: '/product_unit_types', key: 'product_unit_types', nameField: 'name' },
+        'account_id': { endpoint: '/accounts', key: 'accounts', nameField: 'name' },
+        'sales_account_id': { endpoint: '/accounts', key: 'accounts', nameField: 'name' },
+        'purchase_account_id': { endpoint: '/accounts', key: 'accounts', nameField: 'name' },
+        'cogs_account_id': { endpoint: '/accounts', key: 'accounts', nameField: 'name' },
+        'inventory_id': { endpoint: '/inventories', key: 'inventories', nameField: 'name' },
+        'vendor_id': { endpoint: '/vendors', key: 'vendors', nameField: 'name' },
+        'customer_id': { endpoint: '/customers', key: 'customers', nameField: 'name' },
+        'product_id': { endpoint: '/products', key: 'products', nameField: 'name' },
+        'parent_id': { endpoint: '/product_categories', key: 'product_categories', nameField: 'name' } // For product_categories
+    };
+    return fieldMap[fieldName] || null;
+}
+
+// Fetch required entities for a form
+async function fetchRequiredEntities(fields, resource) {
+    if (!state.apiKey) return;
+
+    const entitiesToFetch = new Set();
+    const entityMap = {};
+
+    fields.forEach(field => {
+        const entityInfo = getEntityEndpoint(field);
+        if (entityInfo) {
+            // Special handling for parent_id - use current resource if it's product_categories
+            if (field === 'parent_id' && resource.endpoint === '/product_categories') {
+                if (!state.cachedData.product_categories || state.cachedData.product_categories.length === 0) {
+                    entitiesToFetch.add('/product_categories');
+                    entityMap['/product_categories'] = { endpoint: '/product_categories', key: 'product_categories', nameField: 'name' };
+                }
+            } else if (!state.cachedData[entityInfo.key] || state.cachedData[entityInfo.key].length === 0) {
+                entitiesToFetch.add(entityInfo.endpoint);
+                entityMap[entityInfo.endpoint] = entityInfo;
+            }
+        }
+    });
+
+    if (entitiesToFetch.size === 0) return;
+
+    const fetchPromises = Array.from(entitiesToFetch).map(async endpoint => {
+        const entityInfo = entityMap[endpoint];
+        try {
+            const url = IS_LOCALHOST ? `/api${endpoint}` : `https://api.qoyod.com/2.0${endpoint}`;
+            const response = await fetch(url, {
+                headers: { 'API-KEY': state.apiKey }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                const dataKey = entityInfo.key;
+                // Handle different response formats
+                if (data[dataKey] && Array.isArray(data[dataKey])) {
+                    state.cachedData[dataKey] = data[dataKey];
+                } else if (Array.isArray(data)) {
+                    state.cachedData[dataKey] = data;
+                } else if (data.data && Array.isArray(data.data)) {
+                    state.cachedData[dataKey] = data.data;
+                }
+            }
+        } catch (error) {
+            console.error(`Failed to fetch ${endpoint}:`, error);
+        }
+    });
+
+    await Promise.all(fetchPromises);
+}
+
+// Get available options for a field
+function getFieldOptions(fieldName, resource) {
+    const entityInfo = getEntityEndpoint(fieldName);
+    if (!entityInfo) return null;
+
+    const data = state.cachedData[entityInfo.key] || [];
+    if (fieldName === 'parent_id' && resource.endpoint === '/product_categories') {
+        return data.map(item => ({ id: item.id, name: item.name || item.name_ar || item.name_en || `ID: ${item.id}` }));
+    }
+    
+    return data.map(item => ({ 
+        id: item.id, 
+        name: item.name || item.name_ar || item.name_en || item.code || `ID: ${item.id}` 
+    }));
+}
+
+// Show entity options helper
+function showEntityOptions(fields, resource) {
+    let optionsContainer = document.getElementById('entity-options');
+    if (!optionsContainer) {
+        // Create the container if it doesn't exist
+        optionsContainer = document.createElement('div');
+        optionsContainer.id = 'entity-options';
+        optionsContainer.style.cssText = 'background: var(--bg-secondary); padding: 12px; border-radius: var(--radius-md); margin-bottom: 10px; font-size: 0.85rem; color: var(--text-secondary); display: none;';
+        const bodySection = $('body-section');
+        const bodyTitle = bodySection.querySelector('h4');
+        if (bodyTitle) {
+            bodyTitle.insertAdjacentElement('afterend', optionsContainer);
+        }
+    }
+
+    const options = [];
+    fields.forEach(field => {
+        if (field.includes('_id')) {
+            const fieldOptions = getFieldOptions(field, resource);
+            if (fieldOptions && fieldOptions.length > 0) {
+                const fieldLabels = {
+                    ar: { category_id: 'التصنيف', unit_id: 'الوحدة', account_id: 'الحساب', vendor_id: 'المورد', customer_id: 'العميل', product_id: 'المنتج', inventory_id: 'المخزن', sales_account_id: 'حساب المبيعات', purchase_account_id: 'حساب المشتريات', cogs_account_id: 'حساب التكلفة', parent_id: 'الأب' },
+                    en: { category_id: 'Category', unit_id: 'Unit', account_id: 'Account', vendor_id: 'Vendor', customer_id: 'Customer', product_id: 'Product', inventory_id: 'Inventory', sales_account_id: 'Sales Account', purchase_account_id: 'Purchase Account', cogs_account_id: 'COGS Account', parent_id: 'Parent' }
+                };
+                const fieldLabel = fieldLabels[state.currentLang]?.[field] || field;
+                options.push({
+                    field,
+                    label: fieldLabel,
+                    options: fieldOptions
+                });
+            }
+        }
+    });
+
+    if (options.length > 0) {
+        let html = `<strong>📋 ${state.currentLang === 'ar' ? 'الخيارات المتاحة:' : 'Available Options:'}</strong><br>`;
+        options.forEach(opt => {
+            html += `<div style="margin-top: 8px;"><strong>${opt.label}:</strong> `;
+            html += opt.options.map(o => `<span style="background: var(--bg-tertiary); padding: 2px 6px; border-radius: 4px; margin: 0 4px;">${o.name} (${o.id})</span>`).join('');
+            html += '</div>';
+        });
+        optionsContainer.innerHTML = html;
+        optionsContainer.style.display = 'block';
+    } else {
+        optionsContainer.style.display = 'none';
+    }
+}
+
+function updateBodySection(operation, resource) {
+    const bodySection = $('body-section');
+    const bodyInput = $('request-body');
+    if (['create', 'update'].includes(operation)) {
+        bodySection.classList.remove('hidden');
+        const fields = resource.fields[operation] || resource.fields.create || [];
+        
+        // Fetch required entities asynchronously
+        fetchRequiredEntities(fields, resource).then(() => {
+            // Rebuild template with fetched data
+            const template = {};
+            const comments = {};
+
+            fields.forEach(field => {
+                if (field === 'line_items') {
+                    template[field] = [{ product_id: 1, quantity: 1, unit_price: 100 }];
+                } else if (field.includes('price') || field === 'amount') {
+                    template[field] = 0.00;
+                } else if (field.includes('_id')) {
+                    const options = getFieldOptions(field, resource);
+                    if (options && options.length > 0) {
+                        template[field] = options[0].id;
+                        comments[field] = `// Available: ${options.map(o => `${o.name} (${o.id})`).join(', ')}`;
+                    } else {
+                        template[field] = 1;
+                        comments[field] = `// Please fetch ${field.replace('_id', '')} first`;
+                    }
+                } else if (field.includes('date')) {
+                    template[field] = new Date().toISOString().split('T')[0];
+                } else if (field === 'track_quantity') {
+                    template[field] = true;
+                } else {
+                    template[field] = '';
+                }
+            });
+
+            // Format JSON
+            let jsonStr = formatJSON(template);
+            bodyInput.value = jsonStr;
+
+            // Show entity options in helper section
+            showEntityOptions(fields, resource);
+        });
+
+        // Build initial template while fetching
+        const template = {};
+        fields.forEach(field => {
+            if (field === 'line_items') template[field] = [{ product_id: 1, quantity: 1, unit_price: 100 }];
+            else if (field.includes('price') || field === 'amount') template[field] = 0.00;
+            else if (field.includes('_id')) template[field] = 1;
+            else if (field.includes('date')) template[field] = new Date().toISOString().split('T')[0];
+            else if (field === 'track_quantity') template[field] = true;
+            else template[field] = '';
+        });
+        bodyInput.value = formatJSON(template);
+    } else { 
+        bodySection.classList.add('hidden'); 
+        bodyInput.value = ''; 
+    }
+}
+
+function formatJsonBody() {
+    try {
+        const parsed = JSON.parse($('request-body').value);
+        $('request-body').value = formatJSON(parsed);
+        showToast(t('success'), 'success');
+    } catch (e) { showToast(t('error') + ': Invalid JSON', 'error'); }
+}
+
+// ============================================
+// API Request Handling
+// ============================================
+async function sendRequest() {
+    if (!state.apiKey) { showToast(t('apiKeyRequired'), 'warning'); return; }
+    const resource = RESOURCES[state.currentResource];
+    const operation = state.currentOperation;
+    
+    // Build the API URL
+    const apiEndpoint = `https://api.qoyod.com/2.0${resource.endpoint}`;
+    let url = apiEndpoint;
+    const params = {};
+    let resourceId = null;
+
+    $$('#params-container .param-row').forEach(row => {
+        const key = row.querySelector('.param-key').value;
+        const value = row.querySelector('.param-value').value;
+        if (key && value) { if (key === 'id') resourceId = value; else params[key] = value; }
+    });
+
+    if (['show', 'update', 'delete'].includes(operation) && !resourceId) { showToast(t('idRequired'), 'warning'); return; }
+    if (resourceId) url += `/${resourceId}`;
+    const queryString = new URLSearchParams(params).toString();
+    if (queryString) url += `?${queryString}`;
+
+    const methods = { list: 'GET', show: 'GET', create: 'POST', update: 'PUT', delete: 'DELETE' };
+    const options = { method: methods[operation], headers: { 'API-KEY': state.apiKey, 'Content-Type': 'application/json', 'Accept': 'application/json' } };
+
+    if (['create', 'update'].includes(operation)) {
+        try { options.body = $('request-body').value; JSON.parse(options.body); }
+        catch (e) { showToast(t('error') + ': Invalid JSON body', 'error'); return; }
+    }
+
+    // If running via localhost server, use proxy
+    if (IS_LOCALHOST) {
+        url = `/api${resource.endpoint}` + (resourceId ? `/${resourceId}` : '') + (queryString ? `?${queryString}` : '');
+    }
+
+    showLoading();
+    const startTime = performance.now();
+
+    try {
+        const response = await fetch(url, options);
+        const duration = Math.round(performance.now() - startTime);
+        state.responseHeaders = {};
+        response.headers.forEach((v, k) => { state.responseHeaders[k] = v; });
+
+        let data;
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) data = await response.json();
+        else data = await response.text();
+
+        state.lastResponseData = data;
+        displayResponse(response.status, duration, data);
+        showToast(`${response.ok ? t('success') : t('error')}: ${response.status}`, response.ok ? 'success' : 'error');
+    } catch (error) {
+        const duration = Math.round(performance.now() - startTime);
+        displayResponse(0, duration, { error: error.message });
+        showToast(t('error') + ': ' + error.message, 'error');
+    } finally { hideLoading(); }
+}
+
+function displayResponse(status, duration, data) {
+    const statusEl = $('response-status');
+    statusEl.textContent = status || 'Error';
+    statusEl.className = 'status-badge';
+    if (status >= 200 && status < 300) statusEl.classList.add('success');
+    else if (status >= 400 || status === 0) statusEl.classList.add('error');
+    $('response-time').textContent = `${duration}ms`;
+    displayResponseBody(data);
+}
+
+function displayResponseBody(data) {
+    $('response-content').innerHTML = typeof data === 'string' ? `<pre>${data}</pre>` : `<pre>${syntaxHighlight(data)}</pre>`;
+}
+
+function displayResponseHeaders() {
+    if (state.responseHeaders) $('response-content').innerHTML = `<pre>${syntaxHighlight(state.responseHeaders)}</pre>`;
+    else $('response-content').innerHTML = `<div class="empty-response"><span>📋</span><p>No headers</p></div>`;
+}
+
+function switchResponseTab(tab) {
+    $$('.resp-tab-btn').forEach(t => t.classList.toggle('active', t === tab));
+    if (tab.dataset.resp === 'headers') displayResponseHeaders();
+    else if (state.lastResponseData) displayResponseBody(state.lastResponseData);
+}
+
+// ============================================
+// Event Listeners
+// ============================================
+function initEventListeners() {
+    $('lang-switch').addEventListener('click', toggleLanguage);
+    $('toggle-key').addEventListener('click', toggleApiKeyVisibility);
+    $('api-key').addEventListener('input', updateConnectionStatus);
+
+    const savedApiKey = localStorage.getItem('qoyod_api_key');
+    if (savedApiKey) { $('api-key').value = savedApiKey; updateConnectionStatus(); }
+    $('api-key').addEventListener('change', () => {
+        localStorage.setItem('qoyod_api_key', $('api-key').value);
+        // Clear cached data when API key changes
+        Object.keys(state.cachedData).forEach(key => state.cachedData[key] = []);
+    });
+
+    $$('.nav-item').forEach(item => item.addEventListener('click', () => selectResource(item.dataset.resource)));
+    $$('.tab-btn').forEach(tab => tab.addEventListener('click', () => selectOperation(tab.dataset.operation)));
+    $('format-json').addEventListener('click', formatJsonBody);
+    $('send-request').addEventListener('click', sendRequest);
+    $$('.resp-tab-btn').forEach(tab => tab.addEventListener('click', () => switchResponseTab(tab)));
+
+    document.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.key === 'Enter' && state.currentResource) sendRequest(); });
+
+    // Navigation links
+    $$('.nav-link').forEach(link => {
+        link.addEventListener('click', e => {
+            e.preventDefault();
+            $$('.nav-link').forEach(l => l.classList.remove('active'));
+            link.classList.add('active');
+            // For now, both views show the same content - can be extended for workflows
+        });
+    });
+}
+
+// ============================================
+// Initialization
+// ============================================
+function showCorsWarning() {
+    if (IS_FILE_PROTOCOL) {
+        const warningHtml = `
+            <div style="background: rgba(245, 158, 11, 0.15); border: 1px solid var(--warning); border-radius: var(--radius-md); padding: 16px; margin-bottom: 20px;">
+                <div style="display: flex; align-items: flex-start; gap: 12px;">
+                    <span style="font-size: 1.5rem;">⚠️</span>
+                    <div>
+                        <strong style="color: var(--warning);">${state.currentLang === 'ar' ? 'تحذير CORS' : 'CORS Warning'}</strong>
+                        <p style="margin: 8px 0 0; color: var(--text-secondary); font-size: 0.9rem;">
+                            ${state.currentLang === 'ar' 
+                                ? 'أنت تفتح الملف مباشرة. لتجنب مشاكل CORS، قم بتشغيل الخادم:' 
+                                : 'You are opening this file directly. To avoid CORS issues, run the server:'}
+                        </p>
+                        <code style="display: block; background: var(--bg-primary); padding: 8px 12px; border-radius: var(--radius-sm); margin-top: 8px; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; direction: ltr;">
+                            node server.js
+                        </code>
+                        <p style="margin: 8px 0 0; color: var(--text-muted); font-size: 0.8rem;">
+                            ${state.currentLang === 'ar' 
+                                ? 'ثم افتح http://localhost:3000/qoyod-complete.html' 
+                                : 'Then open http://localhost:3000/qoyod-complete.html'}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        `;
+        const welcomeScreen = $('welcome-screen');
+        if (welcomeScreen && !document.getElementById('cors-warning')) {
+            const warningDiv = document.createElement('div');
+            warningDiv.id = 'cors-warning';
+            warningDiv.innerHTML = warningHtml;
+            welcomeScreen.insertBefore(warningDiv, welcomeScreen.firstChild);
+        }
+    }
+}
+
+function init() {
+    console.log('🚀 Qoyod API Tester initialized');
+    console.log('Protocol:', window.location.protocol);
+    console.log('Running on localhost:', IS_LOCALHOST);
+    
+    initEventListeners();
+    updateUILabels();
+    showCorsWarning();
+    
+    // Show helpful message in console
+    if (IS_FILE_PROTOCOL) {
+        console.warn('⚠️ CORS Warning: Opening file directly will cause CORS errors.');
+        console.log('💡 Solution: Run "node server.js" and open http://localhost:3000/qoyod-complete.html');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
+

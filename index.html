@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار واجهة قيود البرمجية | Qoyod API Tester</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                    <circle cx="20" cy="20" r="18" stroke="currentColor" stroke-width="2"/>
+                    <path d="M12 20L18 26L28 14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <h1>اختبار واجهة قيود البرمجية</h1>
+            </div>
+            <div class="lang-toggle">
+                <button id="lang-switch" class="btn-icon" title="Switch to English">
+                    <span>EN</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="main-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="api-key-section">
+                <label for="api-key">مفتاح API</label>
+                <div class="input-group">
+                    <input type="password" id="api-key" placeholder="أدخل مفتاح API الخاص بك">
+                    <button id="toggle-key" class="btn-icon" title="إظهار/إخفاء">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="connection-status" id="connection-status">
+                    <span class="status-dot"></span>
+                    <span class="status-text">غير متصل</span>
+                </div>
+            </div>
+
+            <nav class="nav-menu">
+                <div class="nav-section">
+                    <h3 class="nav-title">الحسابات</h3>
+                    <button class="nav-item" data-resource="accounts">
+                        <span class="nav-icon">📊</span>
+                        <span>الحسابات</span>
+                    </button>
+                </div>
+
+                <div class="nav-section">
+                    <h3 class="nav-title">المنتجات والمخزون</h3>
+                    <button class="nav-item" data-resource="products">
+                        <span class="nav-icon">📦</span>
+                        <span>المنتجات</span>
+                    </button>
+                    <button class="nav-item" data-resource="inventories">
+                        <span class="nav-icon">🏭</span>
+                        <span>المخازن</span>
+                    </button>
+                    <button class="nav-item" data-resource="product_categories">
+                        <span class="nav-icon">📁</span>
+                        <span>تصنيفات المنتجات</span>
+                    </button>
+                    <button class="nav-item" data-resource="product_units">
+                        <span class="nav-icon">📏</span>
+                        <span>وحدات القياس</span>
+                    </button>
+                </div>
+
+                <div class="nav-section">
+                    <h3 class="nav-title">المشتريات</h3>
+                    <button class="nav-item" data-resource="vendors">
+                        <span class="nav-icon">🏢</span>
+                        <span>الموردين</span>
+                    </button>
+                    <button class="nav-item" data-resource="purchase_orders">
+                        <span class="nav-icon">📋</span>
+                        <span>أوامر الشراء</span>
+                    </button>
+                    <button class="nav-item" data-resource="bills">
+                        <span class="nav-icon">🧾</span>
+                        <span>فواتير المشتريات</span>
+                    </button>
+                    <button class="nav-item" data-resource="bill_payments">
+                        <span class="nav-icon">💳</span>
+                        <span>سداد الفواتير</span>
+                    </button>
+                    <button class="nav-item" data-resource="simple_bills">
+                        <span class="nav-icon">📄</span>
+                        <span>الفواتير المبسطة</span>
+                    </button>
+                    <button class="nav-item" data-resource="simple_bill_payments">
+                        <span class="nav-icon">💰</span>
+                        <span>سداد الفواتير المبسطة</span>
+                    </button>
+                    <button class="nav-item" data-resource="debit_notes">
+                        <span class="nav-icon">📝</span>
+                        <span>إشعارات المدين</span>
+                    </button>
+                </div>
+
+                <div class="nav-section">
+                    <h3 class="nav-title">المبيعات</h3>
+                    <button class="nav-item" data-resource="customers">
+                        <span class="nav-icon">👥</span>
+                        <span>العملاء</span>
+                    </button>
+                    <button class="nav-item" data-resource="quotes">
+                        <span class="nav-icon">💬</span>
+                        <span>عروض الأسعار</span>
+                    </button>
+                    <button class="nav-item" data-resource="invoices">
+                        <span class="nav-icon">🧾</span>
+                        <span>فواتير المبيعات</span>
+                    </button>
+                    <button class="nav-item" data-resource="invoice_payments">
+                        <span class="nav-icon">💵</span>
+                        <span>تحصيل الفواتير</span>
+                    </button>
+                    <button class="nav-item" data-resource="credit_notes">
+                        <span class="nav-icon">📋</span>
+                        <span>إشعارات الدائن</span>
+                    </button>
+                </div>
+
+                <div class="nav-section">
+                    <h3 class="nav-title">المحاسبة</h3>
+                    <button class="nav-item" data-resource="receipts">
+                        <span class="nav-icon">🧾</span>
+                        <span>الإيصالات</span>
+                    </button>
+                    <button class="nav-item" data-resource="journal_entries">
+                        <span class="nav-icon">📒</span>
+                        <span>القيود اليومية</span>
+                    </button>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Content Area -->
+        <section class="content">
+            <!-- Welcome Screen -->
+            <div id="welcome-screen" class="welcome-screen">
+                <div class="welcome-icon">🚀</div>
+                <h2>مرحباً بك في أداة اختبار واجهة قيود البرمجية</h2>
+                <p>اختر مورداً من القائمة الجانبية للبدء في اختبار نقاط النهاية</p>
+                <div class="quick-start">
+                    <h3>البدء السريع</h3>
+                    <ol>
+                        <li>أدخل مفتاح API الخاص بك في الحقل المخصص</li>
+                        <li>اختر مورداً للاختبار من القائمة الجانبية</li>
+                        <li>اختر العملية المطلوبة (عرض، إضافة، تعديل، حذف)</li>
+                        <li>راجع النتائج في منطقة الاستجابة</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Resource Panel -->
+            <div id="resource-panel" class="resource-panel hidden">
+                <div class="panel-header">
+                    <h2 id="resource-title">المورد</h2>
+                    <div class="method-badges" id="method-badges"></div>
+                </div>
+
+                <!-- Operations Tabs -->
+                <div class="operations-tabs">
+                    <button class="tab-btn active" data-operation="list">
+                        <span class="method-badge get">GET</span>
+                        عرض الكل
+                    </button>
+                    <button class="tab-btn" data-operation="show">
+                        <span class="method-badge get">GET</span>
+                        عرض واحد
+                    </button>
+                    <button class="tab-btn" data-operation="create">
+                        <span class="method-badge post">POST</span>
+                        إضافة
+                    </button>
+                    <button class="tab-btn" data-operation="update">
+                        <span class="method-badge put">PUT</span>
+                        تعديل
+                    </button>
+                    <button class="tab-btn" data-operation="delete">
+                        <span class="method-badge delete">DELETE</span>
+                        حذف
+                    </button>
+                </div>
+
+                <!-- Request Section -->
+                <div class="request-section">
+                    <div class="request-header">
+                        <h3>الطلب</h3>
+                        <div class="endpoint-display">
+                            <span class="method" id="request-method">GET</span>
+                            <span class="url" id="request-url">https://api.qoyod.com/2.0/</span>
+                        </div>
+                    </div>
+
+                    <!-- Parameters -->
+                    <div class="params-section" id="params-section">
+                        <h4>المعاملات</h4>
+                        <div id="params-container"></div>
+                    </div>
+
+                    <!-- Request Body -->
+                    <div class="body-section hidden" id="body-section">
+                        <h4>جسم الطلب (JSON)</h4>
+                        <textarea id="request-body" placeholder='{"key": "value"}'></textarea>
+                        <button id="format-json" class="btn-secondary">تنسيق JSON</button>
+                    </div>
+
+                    <!-- Send Button -->
+                    <button id="send-request" class="btn-primary">
+                        <span>إرسال الطلب</span>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 2L11 13"/>
+                            <path d="M22 2L15 22L11 13L2 9L22 2Z"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Response Section -->
+                <div class="response-section">
+                    <div class="response-header">
+                        <h3>الاستجابة</h3>
+                        <div class="response-meta" id="response-meta">
+                            <span id="response-status" class="status-badge">-</span>
+                            <span id="response-time">-</span>
+                        </div>
+                    </div>
+                    <div class="response-tabs">
+                        <button class="resp-tab-btn active" data-resp="body">الجسم</button>
+                        <button class="resp-tab-btn" data-resp="headers">الترويسات</button>
+                    </div>
+                    <div class="response-body" id="response-content">
+                        <div class="empty-response">
+                            <span>🔍</span>
+                            <p>لم يتم إرسال طلب بعد</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay hidden">
+        <div class="spinner"></div>
+        <p>جاري التحميل...</p>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

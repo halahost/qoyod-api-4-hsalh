@@ -1,0 +1,17 @@
+{
+  "name": "qoyod-api-tester",
+  "version": "1.0.0",
+  "description": "Qoyod API Testing Tool with Arabic/English support",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2"
+  },
+  "keywords": ["qoyod", "api", "tester", "arabic"],
+  "author": "",
+  "license": "MIT"
+}

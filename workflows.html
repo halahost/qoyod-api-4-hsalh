@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>محاكاة سير العمل | Qoyod Workflow Simulator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="workflows.css">
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                    <circle cx="20" cy="20" r="18" stroke="currentColor" stroke-width="2" />
+                    <path d="M12 20L18 26L28 14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+                <h1>محاكاة سير العمل</h1>
+            </div>
+            <nav class="header-nav">
+                <a href="index.html" class="nav-link">اختبار API</a>
+                <a href="workflows.html" class="nav-link active">سير العمل</a>
+            </nav>
+            <div class="header-actions">
+                <button id="btn-refresh-data" class="btn-secondary" title="Refresh Data">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+                <button id="btn-fill-data" class="btn-secondary" title="Fill Test Data">
+                    <i class="fas fa-magic"></i>
+                </button>
+                <div class="theme-toggle">
+                    <button id="view-postman" class="view-btn active" title="Postman View">
+                        <span>{ }</span>
+                    </button>
+                    <button id="view-ui" class="view-btn" title="UI Form View">
+                        <span>📝</span>
+                    </button>
+                </div>
+                <button id="lang-switch" class="btn-icon" title="Switch Language">
+                    <span>EN</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="main-container">
+        <!-- Sidebar - Workflows Menu -->
+        <aside class="sidebar">
+            <div class="api-key-section">
+                <label for="api-key">مفتاح API</label>
+                <div class="input-group">
+                    <input type="password" id="api-key" placeholder="أدخل مفتاح API الخاص بك">
+                    <button id="toggle-key" class="btn-icon" title="إظهار/إخفاء">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                            <circle cx="12" cy="12" r="3" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="connection-status" id="connection-status" style="margin-bottom: 15px;">
+                    <span class="status-dot"></span>
+                    <span class="status-text">غير متصل</span>
+                </div>
+
+                <label for="api-base-url" style="margin-top: 15px;">رابط API الأساسي</label>
+                <div class="input-group">
+                    <input type="text" id="api-base-url" placeholder="/api أو https://api.qoyod.com/2.0">
+                </div>
+            </div>
+
+            <nav class="workflow-menu">
+                <h3 class="menu-title">سير العمل المتاحة</h3>
+
+                <button class="workflow-item active" data-workflow="product-setup">
+                    <span class="workflow-icon">📦</span>
+                    <div class="workflow-info">
+                        <span class="workflow-name">إعداد المنتجات</span>
+                        <span class="workflow-desc">إنشاء ومزامنة المنتجات</span>
+                    </div>
+                </button>
+
+                <button class="workflow-item" data-workflow="order-processing">
+                    <span class="workflow-icon">🛒</span>
+                    <div class="workflow-info">
+                        <span class="workflow-name">معالجة الطلبات</span>
+                        <span class="workflow-desc">من الطلب إلى الفاتورة</span>
+                    </div>
+                </button>
+
+                <button class="workflow-item" data-workflow="invoice-creation">
+                    <span class="workflow-icon">🧾</span>
+                    <div class="workflow-info">
+                        <span class="workflow-name">إصدار الفواتير</span>
+                        <span class="workflow-desc">متوافق مع ZATCA</span>
+                    </div>
+                </button>
+
+                <button class="workflow-item" data-workflow="payment-processing">
+                    <span class="workflow-icon">💳</span>
+                    <div class="workflow-info">
+                        <span class="workflow-name">تحصيل المدفوعات</span>
+                        <span class="workflow-desc">تسجيل وتتبع المدفوعات</span>
+                    </div>
+                </button>
+
+                <button class="workflow-item" data-workflow="purchase-restock">
+                    <span class="workflow-icon">📋</span>
+                    <div class="workflow-info">
+                        <span class="workflow-name">أوامر الشراء</span>
+                        <span class="workflow-desc">إعادة التخزين من الموردين</span>
+                    </div>
+                </button>
+
+                <button class="workflow-item" data-workflow="dropshipping">
+                    <span class="workflow-icon">🚚</span>
+                    <div class="workflow-info">
+                        <span class="workflow-name">دروب شوبينج</span>
+                        <span class="workflow-desc">بدون تتبع المخزون</span>
+                    </div>
+                </button>
+            </nav>
+        </aside>
+
+        <!-- Content Area -->
+        <section class="content">
+            <!-- Workflow Header -->
+            <div class="workflow-header">
+                <div class="workflow-title-section">
+                    <h2 id="workflow-title">إعداد المنتجات</h2>
+                    <p id="workflow-description">إنشاء وربط المنتجات بين المتجر الإلكتروني وقيود</p>
+                </div>
+                <div class="workflow-actions">
+                    <button id="reset-workflow" class="btn-secondary">
+                        <span>🔄</span>
+                        إعادة تعيين
+                    </button>
+                    <button id="run-all" class="btn-primary">
+                        <span>▶️</span>
+                        تشغيل الكل
+                    </button>
+                </div>
+            </div>
+
+            <!-- Workflow Steps -->
+            <div class="workflow-steps" id="workflow-steps">
+                <!-- Steps will be rendered dynamically -->
+            </div>
+
+            <!-- Execution Panel -->
+            <div class="execution-panel">
+                <div class="panel-tabs">
+                    <button class="panel-tab active" data-panel="request">الطلب</button>
+                    <button class="panel-tab" data-panel="response">الاستجابة</button>
+                    <button class="panel-tab" data-panel="curl">cURL</button>
+                </div>
+
+                <div class="panel-content">
+                    <!-- Request Panel -->
+                    <div class="panel-section active" id="panel-request">
+                        <div class="request-info">
+                            <span class="method-badge get" id="current-method">GET</span>
+                            <span class="endpoint" id="current-endpoint">/api/products</span>
+                        </div>
+
+                        <!-- Postman View -->
+                        <div class="postman-view" id="postman-view">
+                            <div class="json-editor">
+                                <label>Headers</label>
+                                <pre id="request-headers">{
+  "API-KEY": "your-api-key",
+  "Content-Type": "application/json"
+}</pre>
+                            </div>
+                            <div class="json-editor">
+                                <label>Body</label>
+                                <textarea id="request-body" placeholder="{}"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- UI Form View -->
+                        <div class="ui-form-view hidden" id="ui-form-view">
+                            <form id="workflow-form">
+                                <!-- Form fields will be rendered dynamically -->
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Response Panel -->
+                    <div class="panel-section" id="panel-response">
+                        <div class="response-meta">
+                            <span class="status-badge" id="response-status">-</span>
+                            <span class="response-time" id="response-time">-</span>
+                        </div>
+                        <pre class="response-body" id="response-body">// لم يتم إرسال طلب بعد</pre>
+                    </div>
+
+                    <!-- cURL Panel -->
+                    <div class="panel-section" id="panel-curl">
+                        <pre class="curl-command" id="curl-command">curl -X GET "https://api.qoyod.com/2.0/products" \
+  -H "API-KEY: your-api-key" \
+  -H "Content-Type: application/json"</pre>
+                        <button class="btn-secondary copy-curl" id="copy-curl">
+                            <span>📋</span>
+                            نسخ
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Execute Button -->
+                <button id="execute-step" class="btn-execute">
+                    <span>🚀</span>
+                    تنفيذ الخطوة الحالية
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay hidden">
+        <div class="spinner"></div>
+        <p>جاري التنفيذ...</p>
+    </div>
+
+    <script src="workflows.js"></script>
+</body>
+
+</html>
